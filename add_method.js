@@ -133,5 +133,7 @@
         }
         return null;
     }
+    
+    global.AVLTree = AVLTree;
 
 })(this);
