@@ -111,7 +111,11 @@
             if (Math.abs(parent.balanceFactor) < Math.abs(prevBalanceFactor)) {
                 break;
             }
-         
+            
+            if (parent.balanceFactor < -1 || parent.balanceFactor > 1) {
+                this._rebalance(parent);
+                break;
+            }
             currentNode = parent;
         }
      
@@ -132,6 +136,68 @@
             }
         }
         return null;
+    }
+    
+    AVLTree.prototype._rebalance = function (node) {
+        if (node.balanceFactor < 0) {
+            if (node.right.balanceFactor > 0) {
+                this._rotateRight(node.right);
+                this._rotateLeft(node);
+            } else {
+                this._rotateLeft(node);
+            }
+        } else if (node.balanceFactor > 0) {
+            if (node.left.balanceFactor < 0) {
+                this._rotateLeft(node.left);
+                this._rotateRight(node);
+            } else {
+                this._rotateRight(node);
+            }
+        }
+    }
+
+    AVLTree.prototype._rotateLeft = function (rotRoot) {
+        var newRoot = rotRoot.right;
+        rotRoot.right = newRoot.left;
+        if (newRoot.left != null) {
+            newRoot.left.parent = rotRoot;
+        }
+        newRoot.parent = rotRoot.parent;
+        if (rotRoot.parent == null) {
+            this.root = newRoot;
+        } else {
+            if (rotRoot.isLeftChild()) {
+                rotRoot.parent.left = newRoot;
+            } else {
+                rotRoot.parent.right = newRoot;
+            }
+        }
+        newRoot.left = rotRoot;
+        rotRoot.parent = newRoot;
+        rotRoot.balanceFactor = rotRoot.balanceFactor + 1 - Math.min(newRoot.balanceFactor, 0);
+        newRoot.balanceFactor = newRoot.balanceFactor + 1 + Math.max(rotRoot.balanceFactor, 0);
+    }
+ 
+    AVLTree.prototype._rotateRight = function (rotRoot) {
+        var newRoot = rotRoot.left;
+        rotRoot.left = newRoot.right;
+        if (newRoot.right != null) {
+            newRoot.right.parent = rotRoot;
+        }
+        newRoot.parent = rotRoot.parent;
+        if (rotRoot.parent == null) {
+            this.root = newRoot;
+        } else {
+            if (rotRoot.isLeftChild()) {
+                rotRoot.parent.left = newRoot;
+            } else {
+                rotRoot.parent.right = newRoot;
+            }
+        }
+        newRoot.right = rotRoot;
+        rotRoot.parent = newRoot;
+        rotRoot.balanceFactor = rotRoot.balanceFactor - 1 - Math.max(newRoot.balanceFactor, 0);
+        newRoot.balanceFactor = newRoot.balanceFactor - 1 + Math.min(rotRoot.balanceFactor, 0);
     }
     
     global.AVLTree = AVLTree;
